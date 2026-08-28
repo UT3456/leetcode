@@ -1,56 +1,35 @@
-import java.util.Arrays;
-
 class Solution {
-
-    private int[] dp;
 
     public int minCut(String s) {
         int n = s.length();
-        dp = new int[n];
 
-        Arrays.fill(dp, -1);
+        // dp[i] = minimum cuts needed for substring s[0...i-1]
+        int[] dp = new int[n + 1];
 
-        return solve(s, 0, n - 1);
-    }
+        // isPal[i][j] = true if s[i...j] is palindrome
+        boolean[][] isPal = new boolean[n][n];
 
-    private int solve(String s, int i, int j) {
-
-        // No cut needed
-        if (i >= j || isPalindrome(s, i, j)) {
-            return 0;
+        for (int i = 0; i <= n; i++) {
+            dp[i] = i - 1;
         }
 
-        // Already computed
-        if (dp[i] != -1) {
-            return dp[i];
-        }
+        for (int end = 0; end < n; end++) {
 
-        int ans = Integer.MAX_VALUE;
+            for (int start = 0; start <= end; start++) {
 
-        for (int k = i; k < j; k++) {
+                if (s.charAt(start) == s.charAt(end) &&
+                    (end - start <= 2 || isPal[start + 1][end - 1])) {
 
-            // Only partition if left part is palindrome
-            if (isPalindrome(s, i, k)) {
+                    isPal[start][end] = true;
 
-                int tempAns = 1 + solve(s, k + 1, j);
-                ans = Math.min(ans, tempAns);
+                    dp[end + 1] = Math.min(
+                        dp[end + 1],
+                        dp[start] + 1
+                    );
+                }
             }
         }
 
-        return dp[i] = ans;
-    }
-
-    private boolean isPalindrome(String s, int i, int j) {
-
-        while (i < j) {
-            if (s.charAt(i) != s.charAt(j)) {
-                return false;
-            }
-
-            i++;
-            j--;
-        }
-
-        return true;
+        return dp[n];
     }
 }
